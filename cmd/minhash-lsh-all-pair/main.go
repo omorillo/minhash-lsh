@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	minhashlsh "github.com/ekzhu/minhash-lsh"
+	minhashlsh "github.com/omorillo/minhash-lsh"
 )
 
 var (

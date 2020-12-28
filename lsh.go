@@ -1,8 +1,11 @@
 package minhashlsh
 
 import (
+	"compress/gzip"
 	"encoding/binary"
+	"encoding/gob"
 	"math"
+	"os"
 	"sort"
 )
 
@@ -109,6 +112,51 @@ type MinhashLSH struct {
 	hashKeyFunc    hashKeyFunc
 	hashValueSize  int
 	numIndexedKeys int
+}
+
+// Save MinHash LSH index
+func (minhashLsh *MinhashLSH) Save(filename string) error {
+	fi, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer fi.Close()
+
+	fz := gzip.NewWriter(fi)
+	defer fz.Close()
+
+	encoder := gob.NewEncoder(fz)
+	err = encoder.Encode(*minhashLsh)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Load MinHash LSH index
+func Load(filename string) (*MinhashLSH, error) {
+
+	fi, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer fi.Close()
+
+	fz, err := gzip.NewReader(fi)
+	if err != nil {
+		return nil, err
+	}
+	defer fz.Close()
+
+	decoder := gob.NewDecoder(fz)
+	t := MinhashLSH{}
+	err = decoder.Decode(&t)
+	if err != nil {
+		return nil, err
+	}
+
+	return &t, nil
 }
 
 func newMinhashLSH(threshold float64, numHash, hashValueSize, initSize int) *MinhashLSH {

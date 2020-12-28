@@ -27,7 +27,7 @@ func hashKeyFuncGen(hashValueSize int) hashKeyFunc {
 	}
 }
 
-// Compute the integral of function f, lower limit a, upper limit l, and
+// Compute the integral of function f, lower limit a, upper limit L, and
 // precision defined as the quantize step
 func integral(f func(float64) float64, a, b, precision float64) float64 {
 	var area float64
@@ -106,12 +106,12 @@ func (h hashTable) Less(i, j int) bool { return h[i].hashKey < h[j].hashKey }
 // L (number of bands) and
 // K (number of hash functions per band).
 type MinhashLSH struct {
-	k              int
-	l              int
-	hashTables     []hashTable
-	hashKeyFunc    hashKeyFunc
-	hashValueSize  int
-	numIndexedKeys int
+	K              int
+	L              int
+	HashTables     []hashTable
+	HashKeyFunc    hashKeyFunc
+	HashValueSize  int
+	NumIndexedKeys int
 }
 
 // Save MinHash LSH index
@@ -166,12 +166,12 @@ func newMinhashLSH(threshold float64, numHash, hashValueSize, initSize int) *Min
 		hashTables[i] = make(hashTable, 0, initSize)
 	}
 	return &MinhashLSH{
-		k:              k,
-		l:              l,
-		hashValueSize:  hashValueSize,
-		hashTables:     hashTables,
-		hashKeyFunc:    hashKeyFuncGen(hashValueSize),
-		numIndexedKeys: 0,
+		K:              k,
+		L:              l,
+		HashValueSize:  hashValueSize,
+		HashTables:     hashTables,
+		HashKeyFunc:    hashKeyFuncGen(hashValueSize),
+		NumIndexedKeys: 0,
 	}
 }
 
@@ -198,15 +198,15 @@ func NewMinhashLSH16(numHash int, threshold float64, initSize int) *MinhashLSH {
 // with pre-allocation of hash tables.
 var NewMinhashLSH = NewMinhashLSH32
 
-// Params returns the LSH parameters k and l
+// Params returns the LSH parameters K and L
 func (f *MinhashLSH) Params() (k, l int) {
-	return f.k, f.l
+	return f.K, f.L
 }
 
 func (f *MinhashLSH) hashKeys(sig []uint64) []string {
-	hs := make([]string, f.l)
-	for i := 0; i < f.l; i++ {
-		hs[i] = f.hashKeyFunc(sig[i*f.k : (i+1)*f.k])
+	hs := make([]string, f.L)
+	for i := 0; i < f.L; i++ {
+		hs[i] = f.HashKeyFunc(sig[i*f.K : (i+1)*f.K])
 	}
 	return hs
 }
@@ -217,17 +217,17 @@ func (f *MinhashLSH) Add(key interface{}, sig []uint64) {
 	// Generate hash keys
 	hs := f.hashKeys(sig)
 	// Insert keys into the hash tables by appending.
-	for i := range f.hashTables {
-		f.hashTables[i] = append(f.hashTables[i], entry{hs[i], key})
+	for i := range f.HashTables {
+		f.HashTables[i] = append(f.HashTables[i], entry{hs[i], key})
 	}
 }
 
 // Index makes all the keys added searchable.
 func (f *MinhashLSH) Index() {
-	for i := range f.hashTables {
-		sort.Sort(f.hashTables[i])
+	for i := range f.HashTables {
+		sort.Sort(f.HashTables[i])
 	}
-	f.numIndexedKeys = len(f.hashTables[0])
+	f.NumIndexedKeys = len(f.HashTables[0])
 }
 
 // Query returns candidate keys given the query signature.
@@ -245,9 +245,9 @@ func (f *MinhashLSH) query(sig []uint64) map[interface{}]bool {
 	hashKeys := f.hashKeys(sig)
 	results := make(map[interface{}]bool)
 	// Query hash tables using binary search.
-	for i := 0; i < f.l; i++ {
+	for i := 0; i < f.L; i++ {
 		// Only search over the indexed keys.
-		hashTable := f.hashTables[i][:f.numIndexedKeys]
+		hashTable := f.HashTables[i][:f.NumIndexedKeys]
 		hashKey := hashKeys[i]
 		k := sort.Search(len(hashTable), func(x int) bool {
 			return hashTable[x].hashKey >= hashKey

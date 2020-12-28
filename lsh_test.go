@@ -50,10 +50,10 @@ func Test_MinhashLSH(t *testing.T) {
 	}
 
 	f.Index()
-	for i := range f.hashTables {
+	for i := range f.HashTables {
 		// Hash tables should have size 3
-		if len(f.hashTables[i]) != 3 {
-			t.Fatal(f.hashTables[i])
+		if len(f.HashTables[i]) != 3 {
+			t.Fatal(f.HashTables[i])
 		}
 	}
 
@@ -82,7 +82,7 @@ func Test_MinhashLSH2(t *testing.T) {
 	minhashLsh.Add("s1", sig1)
 	minhashLsh.Index()
 	k, l := minhashLsh.Params()
-	t.Logf("Minhash LSH params: k = %d, l = %d", k, l)
+	t.Logf("Minhash LSH params: K = %d, L = %d", k, l)
 
 	mh = NewMinhash(seed, numHash)
 	words = []string{"one", "two", "three", "four",

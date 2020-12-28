@@ -150,13 +150,15 @@ func Load(filename string) (*MinhashLSH, error) {
 	defer fz.Close()
 
 	decoder := gob.NewDecoder(fz)
-	t := MinhashLSH{}
-	err = decoder.Decode(&t)
+	lshIndex := new(MinhashLSH)
+	err = decoder.Decode(lshIndex)
 	if err != nil {
 		return nil, err
 	}
 
-	return &t, nil
+	lshIndex.HashKeyFunc = hashKeyFuncGen(lshIndex.HashValueSize)
+
+	return lshIndex, nil
 }
 
 func newMinhashLSH(threshold float64, numHash, hashValueSize, initSize int) *MinhashLSH {

@@ -86,10 +86,10 @@ func optimalKL(numHash int, t float64) (optK, optL int, fp, fn float64) {
 	return
 }
 
-// entry contains the hash key (from minhash signature) and the indexed key
+// entry contains the hash Key (from minhash signature) and the indexed Key
 type entry struct {
-	hashKey string
-	key     interface{}
+	HashKey string
+	Key     interface{}
 }
 
 // hashTable is a look-up table implemented as a slice sorted by hash keys.
@@ -98,7 +98,7 @@ type hashTable []entry
 
 func (h hashTable) Len() int           { return len(h) }
 func (h hashTable) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h hashTable) Less(i, j int) bool { return h[i].hashKey < h[j].hashKey }
+func (h hashTable) Less(i, j int) bool { return h[i].HashKey < h[j].HashKey }
 
 // MinhashLSH represents a MinHash LSH implemented using LSH Forest
 // (http://ilpubs.stanford.edu:8090/678/1/2005-14.pdf).
@@ -211,8 +211,8 @@ func (f *MinhashLSH) hashKeys(sig []uint64) []string {
 	return hs
 }
 
-// Add a key with MinHash signature into the index.
-// The key won't be searchable until Index() is called.
+// Add a Key with MinHash signature into the index.
+// The Key won't be searchable until Index() is called.
 func (f *MinhashLSH) Add(key interface{}, sig []uint64) {
 	// Generate hash keys
 	hs := f.hashKeys(sig)
@@ -250,11 +250,11 @@ func (f *MinhashLSH) query(sig []uint64) map[interface{}]bool {
 		hashTable := f.HashTables[i][:f.NumIndexedKeys]
 		hashKey := hashKeys[i]
 		k := sort.Search(len(hashTable), func(x int) bool {
-			return hashTable[x].hashKey >= hashKey
+			return hashTable[x].HashKey >= hashKey
 		})
-		if k < len(hashTable) && hashTable[k].hashKey == hashKey {
-			for j := k; j < len(hashTable) && hashTable[j].hashKey == hashKey; j++ {
-				key := hashTable[j].key
+		if k < len(hashTable) && hashTable[k].HashKey == hashKey {
+			for j := k; j < len(hashTable) && hashTable[j].HashKey == hashKey; j++ {
+				key := hashTable[j].Key
 				if _, exist := results[key]; !exist {
 					results[key] = true
 				}

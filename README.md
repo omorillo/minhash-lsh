@@ -5,7 +5,7 @@
 
 [Documentation](https://godoc.org/github.com/ekzhu/minhash-lsh)
 
-Install: `go get github.com/ekzhu/minhash-lsh`
+Install: `go get github.com/omorillo/minhash-lsh`
 
 ## Run Benchmark
 

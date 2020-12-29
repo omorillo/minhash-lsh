@@ -52,6 +52,10 @@ func (m *Minhash) Push(b []byte) {
 	m.mw.Push(b)
 }
 
+func (m *Minhash) Clear() {
+	m.mw.Clear()
+}
+
 // Signature exports the MinHash as a list of hash values.
 func (m *Minhash) Signature() []uint64 {
 	return m.mw.Signature()
